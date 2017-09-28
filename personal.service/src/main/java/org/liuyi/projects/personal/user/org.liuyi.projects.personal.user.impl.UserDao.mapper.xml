@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://dtd.chinaedu.net/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.liuyi.projects.personal.user.impl.UserDao">
+	<select id="get" resultType="org.liuyi.projects.personal.domain.User" parameterType="java.util.Map">
+		select user_name as name,id from sys_user where id=#{id}
+	</select>
+</mapper>
