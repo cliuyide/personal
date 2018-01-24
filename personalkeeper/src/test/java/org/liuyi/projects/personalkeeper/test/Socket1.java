@@ -5,27 +5,28 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import com.lowagie.text.Header;
 
 public class Socket1 {
 	public static void main(String[] args) {
 		//监听端口
-		ServerSocket serverSocket = null;
-		try {
-			serverSocket = new ServerSocket(8888);
+		ServerSocket serverSocket=null;
+		try{		
+			serverSocket= new ServerSocket(8888);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		  for (; ; ) { 
-		    try {
-				new SocketHandle(serverSocket.accept()).start();
+		while(true){ 
+		    try{
+		    	new SocketHandle(serverSocket.accept()).start();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
-			} 
-		  }
+			}
+		}
 	}
 	
 	static class SocketHandle extends Thread {
@@ -54,7 +55,6 @@ public class Socket1 {
                 StringBuilder headStr = new StringBuilder();
                 //读取HTTP请求头，并拿到HOST请求头和method
                 while (null != (line = lineBuffer.readLine())) {
-                    System.out.println(line);
                     headStr.append(line + "\r\n");
                     if (line.length() == 0) {
                         break;
@@ -65,8 +65,9 @@ public class Socket1 {
                         }
                     }
                 }
+                System.out.println(headStr.toString());
                 String type = headStr.substring(0, headStr.indexOf(" "));
-                //根据host头解析出目标服务器的host和port
+//                //根据host头解析出目标服务器的host和port
                 String[] hostTemp = host.split(":");
                 host = hostTemp[0];
                 int port = 80;
@@ -75,21 +76,24 @@ public class Socket1 {
                 }
                 //连接到目标服务器
                 proxySocket = new Socket(host, port);
-                System.out.println("目标服务器地址host="+host+" port="+port);
+//                System.out.println("目标服务器地址host="+host+" port="+port);
                 proxyInput = proxySocket.getInputStream();
                 proxyOutput = proxySocket.getOutputStream();
-                //根据HTTP method来判断是https还是http请求
+//                //根据HTTP method来判断是https还是http请求
                 if ("CONNECT".equalsIgnoreCase(type)) {//https先建立隧道
                     clientOutput.write("HTTP/1.1 200 Connection Established\r\n\r\n".getBytes());
                     clientOutput.flush();
                 } else {//http直接将请求头转发
                     proxyOutput.write(headStr.toString().getBytes());
                 }
-                //新开线程转发客户端请求至目标服务器
+//                //新开线程转发客户端请求至目标服务器  
                 new ProxyHandleThread(clientInput, proxyOutput).start();
-                //转发目标服务器响应至客户端
+//                //转发目标服务器响应至客户端
+                InputStreamReader proxyInputReader=new InputStreamReader(proxyInput);
+                BufferedReader bufferedReader=new BufferedReader(proxyInputReader);
                 while (true) {
-                    clientOutput.write(proxyInput.read());
+                	line=bufferedReader.readLine();
+                	System.out.println(line + "\r\n");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -154,9 +158,9 @@ public class Socket1 {
         @Override
         public void run() {
             try {
-                while (true) {
-                    output.write(input.read());
-                }
+            	while(true){
+            		output.write(input.read());
+            	}
             } catch (IOException e) {
                 e.printStackTrace();
             }

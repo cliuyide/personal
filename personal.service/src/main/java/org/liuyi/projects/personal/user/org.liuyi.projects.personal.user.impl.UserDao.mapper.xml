@@ -4,6 +4,6 @@
     "http://dtd.chinaedu.net/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.liuyi.projects.personal.user.impl.UserDao">
 	<select id="get" resultType="org.liuyi.projects.personal.domain.User" >
-		select name,id from sys_user
+		select user_name,id from sys_user where id="4cdc04f4-d430-47ac-ac11-96e77f17026f"
 	</select>
 </mapper>

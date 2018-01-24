@@ -12,6 +12,7 @@ public class UserDao implements IUserDao {
 
 	@Override
 	public User getUser() {
+		System.out.println("ok不");
 		return sqlSession.selectOne("get");
 	}
 	
