@@ -26,7 +26,7 @@ public class UserController {
     public ModelAndView searchUserList(HttpServletRequest request, HttpServletResponse response) throws SQLException {
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("userList",userService.getUser());
-        ModelAndView mav=new ModelAndView("",model);
+        ModelAndView mav=new ModelAndView("hello",model);
         System.out.println("能开始那");
         System.out.println(dataSource.getConnection().toString());
         return mav;

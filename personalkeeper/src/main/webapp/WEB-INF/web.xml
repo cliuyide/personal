@@ -27,20 +27,12 @@
   <filter>
 		<filter-name>appFilter</filter-name>
 		<filter-class>org.liuyi.projects.personal.component.ApplicationFilter</filter-class>
-		<init-param>
-			<param-name>loginPath</param-name>
-			<param-value>login/login.do</param-value>
-		</init-param>
-		<init-param>
-			<!-- 登录后所有人都可以访问的路径  -->
-			<param-name>commonPath</param-name>
-			<param-value>index/main.do,login/logout.do</param-value>
-		</init-param>		
-		<init-param>
-			<param-name>excludePaths</param-name>
-			<param-value>common/*.do,login/*.do,subject/outerAjaxList.do,base/sync/sync101basedata/notify.do,sync/syncresource/syncResource.do,sync/makepdf/pdfnotify.do,organization/organization/listOrganizationNodes.do</param-value>
-		</init-param>
 	</filter>
+	
+	<filter-mapping>
+		<filter-name>appFilter</filter-name>
+		<url-pattern>*.do</url-pattern>
+	</filter-mapping>
   
 	<!-- Reads request input using UTF-8 encoding -->
 	<filter>
@@ -73,6 +65,11 @@
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>Dispatcher Servlet</servlet-name>
+		<url-pattern>*.do</url-pattern>
+	</servlet-mapping>
 
 	<welcome-file-list>  
     	<welcome-file>index.jsp</welcome-file>  
