@@ -10,6 +10,6 @@ import org.junit.Ignore;
 public class JettyServerForPersonalKeeper {
 	public static void main(String[] args) throws Exception {
 		String webapp = "src/main/webapp";  
-        new JettyServerStart(webapp, 8080, "/personalkeeper").start();  
+        new JettyServer(webapp, 8080, "/personalkeeper").start();  
 	}
 }

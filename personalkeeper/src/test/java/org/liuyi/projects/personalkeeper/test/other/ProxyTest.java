@@ -1,4 +1,4 @@
-package org.liuyi.projects.personalkeeper.test;
+package org.liuyi.projects.personalkeeper.test.other;
 
 import java.net.*;
 import java.io.*;

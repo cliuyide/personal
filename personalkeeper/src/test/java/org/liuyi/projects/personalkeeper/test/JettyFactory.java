@@ -1,99 +1,47 @@
 package org.liuyi.projects.personalkeeper.test;
 
-import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
 
-import org.eclipse.jetty.server.Connector;
+import javax.websocket.DeploymentException;
+
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.webapp.WebAppClassLoader;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.eclipse.jetty.webapp.Configuration.ClassList;
+import org.eclipse.jetty.websocket.jsr356.server.ServerContainer;
+import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 
+public class JettyFactory {
+	
+	private static final String DEFAULT_WEBAPP_PATH = "src/main/webapp";
+    private static final String WINDOWS_WEBDEFAULT_PATH = "org/liuyi/projects/personalkeeper/test/webdefault.xml";
 
-public class JettyFactory{
-  private static final String DEFAULT_WEBAPP_PATH = "src/main/webapp";
-  private static final String WINDOWS_WEBDEFAULT_PATH = "jetty/webdefault-windows.xml";
+	 public static Server createServerInSource(int port, String contextPath) throws Exception {
+	        return createServerInSource(port, contextPath, (Class[])null);
+	    }
 
-  public static Server createServerInSource(int port, String contextPath)
-  {
-    Server server = new Server();
+	    public static Server createServerInSource(int port, String contextPath, Class<?>[] webscocketKlasses) throws Exception {
+	        Server server = new Server(port);
+	        server.setStopAtShutdown(true);
+	        ClassList classlist = ClassList.setServerDefault(server);
+	        classlist.addBefore("org.eclipse.jetty.webapp.JettyWebXmlConfiguration", new String[]{"org.eclipse.jetty.annotations.AnnotationConfiguration"});
+	        classlist.addAfter("org.eclipse.jetty.webapp.FragmentConfiguration", new String[]{"org.eclipse.jetty.plus.webapp.EnvConfiguration", "org.eclipse.jetty.plus.webapp.PlusConfiguration"});
+	        WebAppContext webapp = new WebAppContext("src/main/webapp", contextPath);
+	        webapp.setDefaultsDescriptor(WINDOWS_WEBDEFAULT_PATH);
+	        webapp.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", ".*/[^/]*servlet-api-[^/]*\\.jar$|.*/javax.servlet.jsp.jstl-.*\\.jar$|.*/[^/]*taglibs.*\\.jar$|.*/[^/]*cedu.*\\.jar");
+	        server.setHandler(webapp);
+	        WebSocketServerContainerInitializer.configureContext(webapp);
+	        ServerContainer container = (ServerContainer)webapp.getServletContext().getAttribute(ServerContainer.class.getName());
+	        if (webscocketKlasses != null && webscocketKlasses.length > 0) {
+	            Arrays.asList(webscocketKlasses).forEach((t) -> {
+	                try {
+	                    container.addEndpoint(t);
+	                } catch (DeploymentException var3) {
+	                    var3.printStackTrace();
+	                }
 
-    server.setStopAtShutdown(true);
+	            });
+	        }
 
-//    SelectChannelConnector connector = new SelectChannelConnector();
-//    connector.setPort(port);
-//
-//    connector.setReuseAddress(false);
-//    server.setConnectors(new Connector[] { connector });
-
-    WebAppContext webContext = new WebAppContext("src/main/webapp", contextPath);
-
-    webContext.setDefaultsDescriptor("jetty/webdefault-windows.xml");
-    server.setHandler(webContext);
-    return server;
-  }
-
-  public static void setTldJarNames(Server server, String[] jarNames)
-  {
-    WebAppContext context = (WebAppContext)server.getHandler();
-    List list = new ArrayList();
-    list.addAll(Arrays.asList(new String[] { ".*/jstl-[^/]*\\.jar$", ".*/.*taglibs[^/]*\\.jar$" }));
-    List jarNameExprssions = list;
-    for (String jarName : jarNames) {
-      jarNameExprssions.add(new StringBuilder().append(".*/").append(jarName).append("-[^/]*\\.jar$").toString());
-    }
-
-    context.setAttribute("org.eclipse.jetty.server.webapp.ContainerIncludeJarPattern", join(jarNameExprssions.toArray(new String[0]), "|"));
-  }
-
-  public static void reloadContext(Server server)
-    throws Exception
-  {
-    WebAppContext context = (WebAppContext)server.getHandler();
-
-    System.out.println("Application reloading");
-    context.stop();
-
-    WebAppClassLoader classLoader = new WebAppClassLoader(context);
-    classLoader.addClassPath("target/classes");
-    classLoader.addClassPath("target/test-classes");
-    context.setClassLoader(classLoader);
-
-    context.start();
-
-    System.out.println("Application reloaded");
-  }
-
-  public static <T> String join(T[] ids, String split) {
-    StringBuilder sb = new StringBuilder();
-    if ((ids != null) && (ids.length > 0)) {
-      boolean isFirst = true;
-      for (Object id : ids) {
-        if (!isFirst)
-          sb.append(split);
-        else {
-          isFirst = false;
-        }
-        sb.append(id);
-      }
-    }
-    return sb.toString();
-  }
-
-  static
-  {
-    try
-    {
-      InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("log4j-test.properties");
-      Properties properties = new Properties();
-      properties.load(is);
-      is.close();
-      is = null;
-//      PropertyConfigurator.configure(properties);
-    } catch (Exception e1) {
-      e1.printStackTrace();
-    }
-  }
+	        return server;
+	    }
 }

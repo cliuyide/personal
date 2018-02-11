@@ -1,4 +1,4 @@
-package org.liuyi.projects.personalkeeper.test;
+package org.liuyi.projects.personalkeeper.test.other;
 
 import java.io.BufferedReader;
 import java.io.IOException;

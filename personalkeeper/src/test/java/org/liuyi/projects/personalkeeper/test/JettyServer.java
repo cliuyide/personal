@@ -5,13 +5,12 @@ import java.net.DatagramSocket;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.Scanner;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-public class JettyServerStart {  
+public class JettyServer {  
     private int           port;  
     private String        context;  
     private String        webappPath;  
@@ -19,10 +18,10 @@ public class JettyServerStart {
     private boolean       jmxEnabled;  
     private Server        server;  
     private WebAppContext webapp;  
-    public JettyServerStart(String webappPath, int port, String context) {  
+    public JettyServer(String webappPath, int port, String context) {  
         this(webappPath, port, context, 0, false);  
     }  
-    public JettyServerStart(String webappPath, int port, String context, int scanIntervalSeconds, boolean jmxEnabled) {  
+    public JettyServer(String webappPath, int port, String context, int scanIntervalSeconds, boolean jmxEnabled) {  
         this.webappPath = webappPath;  
         this.port = port;  
         this.context = context;  
@@ -54,6 +53,7 @@ public class JettyServerStart {
             throw new RuntimeException("Jetty Server already started.");  
         }  
     }  
+    
     private void doStart() throws Throwable {  
         if (!portAvailable(port)) {  
             throw new IllegalStateException("port: " + port + " already in use!");  
@@ -61,8 +61,8 @@ public class JettyServerStart {
         System.setProperty("org.eclipse.jetty.util.URI.charset", "UTF-8");  
         System.setProperty("org.eclipse.jetty.util.log.class", "org.eclipse.jetty.util.log.Slf4jLog");  
         System.setProperty("org.eclipse.jetty.server.Request.maxFormContentSize", "20000000");  
-        server = new Server(port);  
-        server.setHandler(getHandler());  
+        server = JettyFactory.createServerInSource(port, context);
+//        server.setHandler(getHandler());        
         if (jmxEnabled) {  
 //            MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();  
 //            MBeanContainer mBeanContainer = new MBeanContainer(mBeanServer);  
@@ -78,9 +78,13 @@ public class JettyServerStart {
         server.join();  
     }  
     protected Handler getHandler(){  
-        webapp = new WebAppContext(webappPath, context);  
+        webapp = new WebAppContext(webappPath, context); 
+        webapp.setDefaultsDescriptor("C:/Users/liuyi/git/personal/personalkeeper/src/test/java/org/liuyi/projects/personalkeeper/test/webdefault-windows.xml");
         return webapp;  
     }  
+    
+    
+    
     private void startFileWatchScanner() throws Exception {  
         List<File> scanList = new ArrayList<File>();  
         scanList.add(new File(webappPath, "WEB-INF"));  
@@ -129,4 +133,5 @@ public class JettyServerStart {
         }  
         return false;  
     }  
+
 }  
